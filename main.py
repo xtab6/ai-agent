@@ -35,3 +35,6 @@ def chat(req: ChatRequest):
         }
 
     return {"error": r.text}
+@app.get("/")
+def root():
+    return {"status": "online"}
