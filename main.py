@@ -1,40 +1,39 @@
-import os
-import requests
 from fastapi import FastAPI
 from pydantic import BaseModel
+import requests
+import os
 
 app = FastAPI()
 
 API_KEY = os.getenv("API_KEY")
+
 API_URL = "https://api.freemodel.dev/v1/chat/completions"
 
 class ChatRequest(BaseModel):
-    message: str
+    messages: list
 
 @app.post("/chat")
 def chat(req: ChatRequest):
+
     headers = {
         "Authorization": f"Bearer {API_KEY}",
         "Content-Type": "application/json"
     }
 
     payload = {
-        "model": "free-model",
-        "messages": [
-            {"role": "system", "content": "Kamu adalah AI assistant."},
-            {"role": "user", "content": req.message}
-        ]
+        "model": "gpt-4o-mini",
+        "messages": req.messages
     }
 
-    r = requests.post(API_URL, json=payload, headers=headers)
+    r = requests.post(
+        API_URL,
+        json=payload,
+        headers=headers
+    )
 
-    if r.status_code == 200:
-        data = r.json()
-        return {
-            "reply": data["choices"][0]["message"]["content"]
-        }
+    data = r.json()
 
-    return {"error": r.text}
-@app.get("/")
-def root():
-    return {"status": "online"}
+    return {
+        "reply":
+            data["choices"][0]["message"]["content"]
+    }
